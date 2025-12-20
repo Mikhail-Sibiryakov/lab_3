@@ -2,12 +2,13 @@
 #include "ICache.h"
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 template<typename Key, typename Value>
 struct Item {
     Key key;
     Value val;
-    int bit = 0;
+    int count = 0;
 };
 
 template<typename Key, typename Value>
@@ -21,7 +22,7 @@ public:
         // обновить знач, если ключ был
         if (it != mp.end()) {
             storage[it->second].val = value;
-            storage[it->second].bit = 1;
+            storage[it->second].count = std::min(storage[it->second].count + 1, max_count);
             return;
         }
         
@@ -33,8 +34,8 @@ public:
         }
 
         // ищем жертву для выселения
-        while (storage[ptr].bit == 1) {
-            storage[ptr].bit = 0;
+        while (storage[ptr].count != 0) {
+            --storage[ptr].count;
             ptr = (ptr + 1) % storage.size();
         }
         mp.erase(storage[ptr].key);
@@ -49,7 +50,7 @@ public:
         if (it == mp.end()) {
             return Value();
         }
-        storage[it->second].bit = 1;
+        storage[it->second].count = std::min(storage[it->second].count + 1, max_count);
         return storage[it->second].val;
     }
     
@@ -57,7 +58,7 @@ public:
         auto it = mp.find(key);
         bool res = it != mp.end();
         if (res) {
-            storage[it->second].bit = 1;
+            storage[it->second].count = std::min(storage[it->second].count + 1, max_count);
         }
         return res;
     }
@@ -77,4 +78,5 @@ private:
     std::unordered_map<Key, std::size_t> mp;
     std::size_t ptr = 0;
     std::size_t max_size_storage;
+    const int max_count = 5;
 };
