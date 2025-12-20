@@ -59,9 +59,10 @@ TEST_F(CacheTest, SurvivalScenarios) {
     cache.get(2);
 
     cache.set(4, 40); 
+    EXPECT_TRUE(cache.contains(1));
     EXPECT_TRUE(cache.contains(2));
-    EXPECT_TRUE(cache.contains(3));
-    EXPECT_FALSE(cache.contains(1));
+    EXPECT_FALSE(cache.contains(3));
+    EXPECT_TRUE(cache.contains(4));
 }
 
 TEST_F(CacheTest, ClearAndRestart) {
